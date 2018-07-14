@@ -9,6 +9,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.co.akm.util.collection.collections.impl.CollectionUtilsFactory;
 import uk.co.akm.util.collection.log.Logger;
 import uk.co.akm.util.collection.log.impl.LoggerFactory;
+import uk.co.akm.util.collection.model.City;
+import uk.co.akm.util.collection.model.Country;
 
 import java.util.*;
 
@@ -763,6 +765,85 @@ public class CollectionUtilsTest {
         for (TestElement te : elements) {
             Assert.assertTrue(map.containsKey(te.id));
             Assert.assertEquals(te.name, map.get(te.id));
+        }
+    }
+
+    @Test
+    public void shouldGroupElements() {
+        final Country uk = new Country("United Kingdom");
+        final Country spain = new Country("Spain");
+        final Country italy = new Country("Italy");
+
+        final City london = new City("London", uk);
+        final City gosport = new City("Gosport", uk);
+
+        final City madrid = new City("Madrid", spain);
+        final City segovia = new City("Segovia", spain);
+
+        final City rome = new City("Rome", italy);
+        final City venice = new City("Venice", italy);
+
+        final Transformer<City, Country> byCountry = new Transformer<City, Country>() {
+            public Country transform(City input) {
+                return input.country;
+            }
+        };
+
+        final Collection<City> cities = Arrays.asList(madrid, london, rome, gosport, segovia, venice);
+        final Map<Country, Collection<City>> groups = new HashMap<Country, Collection<City>>();
+
+        underTest.group(cities, byCountry, groups, true);
+
+        Assert.assertEquals(3, groups.size());
+        assertCities(uk, groups.get(uk), london, gosport);
+        assertCities(spain, groups.get(spain), madrid, segovia);
+        assertCities(italy, groups.get(italy), rome, venice);
+    }
+
+    @Test
+    public void shouldGroupElementsWhenErrorsAreIgnored() {
+        final Country uk = new Country("United Kingdom");
+        final Country spain = new Country("Spain");
+        final Country italy = new Country("Italy");
+
+        final City london = new City("London", uk);
+        final City gosport = new City("Gosport", uk);
+
+        final City madrid = new City("Madrid", spain);
+        final City segovia = new City("Segovia", spain);
+
+        final City rome = new City("Rome", italy);
+        final City venice = new City("Venice", italy);
+
+        final City errorCity = new City("Error", null);
+
+        final Transformer<City, Country> byCountry = new Transformer<City, Country>() {
+            public Country transform(City input) {
+                if (input.country == null) {
+                    throw new IllegalArgumentException("Input city (" + input + ") has null country property.");
+                }
+
+                return input.country;
+            }
+        };
+
+        final Collection<City> cities = Arrays.asList(madrid, london, rome, errorCity, gosport, segovia, venice);
+        final Map<Country, Collection<City>> groups = new HashMap<Country, Collection<City>>();
+
+        underTest.group(cities, byCountry, groups, false); // Ignore errors
+
+        Assert.assertEquals(3, groups.size());
+        assertCities(uk, groups.get(uk), london, gosport);
+        assertCities(spain, groups.get(spain), madrid, segovia);
+        assertCities(italy, groups.get(italy), rome, venice);
+    }
+
+    private void assertCities(Country country, Collection<City> actual, City... expected) {
+        Assert.assertNotNull(actual);
+        Assert.assertEquals(expected.length, actual.size());
+        for (City city : expected) {
+            Assert.assertEquals(country, city.country);
+            Assert.assertTrue(actual.contains(city));
         }
     }
 

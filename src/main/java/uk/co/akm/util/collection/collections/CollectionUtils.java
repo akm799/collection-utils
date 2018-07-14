@@ -114,6 +114,23 @@ public interface CollectionUtils {
     <T, K, V> void transform(Iterable<T> iterable, MapEntryBuilder<T, K, V> entryBuilder, Map<K, V> map, boolean stopOnError);
 
     /**
+     * Groups all elements of type T in the input iterable into subgroups each sharing the same category of type K. The
+     * input classifier extracts the category (of type K) from every element of type T. The groups are added to the
+     * supplied, empty, map. Null categories returned by the classifier will be ignored. Thus, any elements for which
+     * the classifier returns a null category will not be grouped.
+     *
+     * @param iterable the iterable whose elements will be grouped
+     * @param classifier the transformer which will extract the classification category from each element
+     * @param groups the map containing all the grouped elements
+     * @param stopOnError if set to true the 1st exception that occurs during the transformer category-extracting operation
+     *                    will be wrapped as a #RuntimeException and re-thrown or it set to false all such exceptions will
+     *                    be ignored
+     * @param <T> the type of the elements being grouped
+     * @param <K> the type of the category by which the input elements are grouped
+     */
+    <T, K> void group(Iterable<T> iterable, Transformer<T, K> classifier, Map<K, Collection<T>> groups, boolean stopOnError);
+
+    /**
      * Returns the count of elements in the input iterable that pass the filter specified by the
      * input predicate.
      *

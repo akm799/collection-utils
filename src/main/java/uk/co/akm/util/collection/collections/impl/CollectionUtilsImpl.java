@@ -3,6 +3,7 @@ package uk.co.akm.util.collection.collections.impl;
 import uk.co.akm.util.collection.collections.*;
 import uk.co.akm.util.collection.log.Logger;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -123,6 +124,29 @@ final class CollectionUtilsImpl implements CollectionUtils {
                 }
             }
         }
+    }
+
+    public <T, K> void group(Iterable<T> iterable, Transformer<T, K> classifier, Map<K, Collection<T>> groups, boolean stopOnError) {
+        if (iterable != null && classifier != null && groups != null) {
+            for (T element : iterable) {
+                try {
+                    final K category = classifier.transform(element);
+                    if (category != null) {
+                        getGroupForCategory(groups, category).add(element);
+                    }
+                } catch (Exception e) {
+                    handleError("Error when extracting collection element category.", e, stopOnError);
+                }
+            }
+        }
+    }
+
+    private <T, K> Collection<T> getGroupForCategory(Map<K, Collection<T>> groups, K categoty) {
+        if (!groups.containsKey(categoty)) {
+            groups.put(categoty, new ArrayList<T>());
+        }
+
+        return groups.get(categoty);
     }
 
     public <T> int countElements(Iterable<T> iterable, Predicate<T> predicate, boolean stopOnError) {
