@@ -1,6 +1,7 @@
 package uk.co.akm.util.collection.collections;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -129,6 +130,8 @@ public interface CollectionUtils {
      * @param <K> the type of the category by which the input elements are grouped
      */
     <T, K> void group(Iterable<T> iterable, Transformer<T, K> classifier, Map<K, Collection<T>> groups, boolean stopOnError);
+
+    <T> Group<T> group(Collection<T> collection, Comparator<T> elementOrder, Classifier<T, Object>... classifiers);
 
     /**
      * Returns the count of elements in the input iterable that pass the filter specified by the

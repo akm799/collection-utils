@@ -1,10 +1,12 @@
 package uk.co.akm.util.collection.collections.impl;
 
 import uk.co.akm.util.collection.collections.*;
+import uk.co.akm.util.collection.collections.impl.groups.GroupClassifier;
 import uk.co.akm.util.collection.log.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -14,9 +16,11 @@ final class CollectionUtilsImpl implements CollectionUtils {
     private static final String TAG = CollectionUtilsImpl.class.getSimpleName();
 
     private final Logger logger;
+    private final GroupClassifier groupClassifier;
 
     CollectionUtilsImpl(Logger logger) {
         this.logger = logger;
+        this.groupClassifier = new GroupClassifier(this);
     }
 
     public boolean isNeitherNullNorEmpty(Collection collection) {
@@ -147,6 +151,10 @@ final class CollectionUtilsImpl implements CollectionUtils {
         }
 
         return groups.get(categoty);
+    }
+
+    public <T> Group<T> group(Collection<T> collection, Comparator<T> elementOrder, Classifier<T, Object>[] classifiers) {
+        return groupClassifier.groupBy(collection, elementOrder, classifiers);
     }
 
     public <T> int countElements(Iterable<T> iterable, Predicate<T> predicate, boolean stopOnError) {
