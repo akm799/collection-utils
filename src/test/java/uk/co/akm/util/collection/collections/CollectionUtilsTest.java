@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.co.akm.util.collection.collections.group.GroupTestData;
 import uk.co.akm.util.collection.collections.impl.CollectionUtilsFactory;
 import uk.co.akm.util.collection.log.Logger;
 import uk.co.akm.util.collection.log.impl.LoggerFactory;
@@ -22,6 +23,7 @@ public class CollectionUtilsTest {
     private final boolean ignoreErrors = false;
     private final boolean abortOnError = true;
     private final RuntimeException testError = new RuntimeException("Test Error");
+    private final GroupTestData data = new GroupTestData(); // For grouping tests.
 
     @Mock
     private Logger testLogger;
@@ -770,53 +772,21 @@ public class CollectionUtilsTest {
 
     @Test
     public void shouldGroupElements() {
-        final Country uk = new Country("United Kingdom");
-        final Country spain = new Country("Spain");
-        final Country italy = new Country("Italy");
-
-        final City london = new City("London", uk);
-        final City gosport = new City("Gosport", uk);
-
-        final City madrid = new City("Madrid", spain);
-        final City segovia = new City("Segovia", spain);
-
-        final City rome = new City("Rome", italy);
-        final City venice = new City("Venice", italy);
-
         final Transformer<City, Country> byCountry = new Transformer<City, Country>() {
             public Country transform(City input) {
                 return input.country;
             }
         };
 
-        final Collection<City> cities = Arrays.asList(madrid, london, rome, gosport, segovia, venice);
+        final Collection<City> cities = Arrays.asList(data.madrid, data.london, data.rome, data.portsmouth, data.segovia, data.venice);
+
         final Map<Country, Collection<City>> groups = new HashMap<Country, Collection<City>>();
-
         underTest.group(cities, byCountry, groups, true);
-
-        Assert.assertEquals(3, groups.size());
-        assertCities(uk, groups.get(uk), london, gosport);
-        assertCities(spain, groups.get(spain), madrid, segovia);
-        assertCities(italy, groups.get(italy), rome, venice);
+        assertGroupingByCountry(groups);
     }
 
     @Test
     public void shouldGroupElementsWhenErrorsAreIgnored() {
-        final Country uk = new Country("United Kingdom");
-        final Country spain = new Country("Spain");
-        final Country italy = new Country("Italy");
-
-        final City london = new City("London", uk);
-        final City gosport = new City("Gosport", uk);
-
-        final City madrid = new City("Madrid", spain);
-        final City segovia = new City("Segovia", spain);
-
-        final City rome = new City("Rome", italy);
-        final City venice = new City("Venice", italy);
-
-        final City errorCity = new City("Error", null);
-
         final Transformer<City, Country> byCountry = new Transformer<City, Country>() {
             public Country transform(City input) {
                 if (input.country == null) {
@@ -827,15 +797,36 @@ public class CollectionUtilsTest {
             }
         };
 
-        final Collection<City> cities = Arrays.asList(madrid, london, rome, errorCity, gosport, segovia, venice);
+        final City errorCity = new City("Error", null);
+        final Collection<City> cities = Arrays.asList(data.madrid, data.london, data.rome, errorCity, data.portsmouth, data.segovia, data.venice);
+
         final Map<Country, Collection<City>> groups = new HashMap<Country, Collection<City>>();
-
         underTest.group(cities, byCountry, groups, false); // Ignore errors
+        assertGroupingByCountry(groups);
+    }
 
+    @Test
+    public void shouldIgnoreNullCategoriesWhenGrouping() {
+        final City nullCategoryCity = new City("Null Country Town", null);
+
+        final Transformer<City, Country> byCountry = new Transformer<City, Country>() {
+            public Country transform(City input) {
+                return input.country;
+            }
+        };
+
+        final Collection<City> cities = Arrays.asList(data.madrid, data.london, data.rome, nullCategoryCity, data.portsmouth, data.segovia, data.venice);
+
+        final Map<Country, Collection<City>> groups = new HashMap<Country, Collection<City>>();
+        underTest.group(cities, byCountry, groups, true);
+        assertGroupingByCountry(groups);
+    }
+
+    private void assertGroupingByCountry(Map<Country, Collection<City>> groups) {
         Assert.assertEquals(3, groups.size());
-        assertCities(uk, groups.get(uk), london, gosport);
-        assertCities(spain, groups.get(spain), madrid, segovia);
-        assertCities(italy, groups.get(italy), rome, venice);
+        assertCities(data.uk, groups.get(data.uk), data.london, data.portsmouth);
+        assertCities(data.spain, groups.get(data.spain), data.madrid, data.segovia);
+        assertCities(data.italy, groups.get(data.italy), data.rome, data.venice);
     }
 
     private void assertCities(Country country, Collection<City> actual, City... expected) {

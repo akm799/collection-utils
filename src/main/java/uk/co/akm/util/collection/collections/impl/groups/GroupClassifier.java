@@ -35,10 +35,18 @@ public final class GroupClassifier {
     }
 
     private <T> Group<T> groupBy(Collection<T> collection, Classifier<T, Object> classifier, Comparator<T> elementOrder) {
-        final Map<Object, Collection<T>> map = (classifier.hasOrderDefinition() ? new TreeMap(classifier.orderDefinition()) : new LinkedHashMap());
+        final Map<Object, Collection<T>> map = mapInstance(classifier);
         collectionUtils.group(collection, classifier.categoryExtractor(), map, true);
 
         return new GroupImpl(map, classifier.orderDefinition(), elementOrder);
+    }
+
+    private <T> Map<Object, Collection<T>> mapInstance(Classifier<T, Object> classifier) {
+        if (classifier.hasOrderDefinition()) {
+            return new TreeMap(classifier.orderDefinition());
+        } else {
+            return new LinkedHashMap();
+        }
     }
 
     private <T> void groupByStartingFromRoot(Group<T> root, Classifier<T, Object> classifier, Comparator<T> elementOrder) {

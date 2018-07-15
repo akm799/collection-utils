@@ -14,6 +14,7 @@ public final class GroupTestData {
     public final Country italy = new Country("Italy");
 
     public final City london = new City("London", uk);
+    public final City portsmouth = new City("Portsmouth", uk);
 
     public final City madrid = new City("Madrid", spain);
     public final City segovia = new City("Segovia", spain);
@@ -25,6 +26,10 @@ public final class GroupTestData {
     public final Venue maritimeMuseum = new Venue("Maritime Museum", Type.INDOOR, london);
     public final Venue somersetHouse = new Venue("Somerset House", Type.OUTDOOR, london);
     public final Venue kewGardens = new Venue("Kew Gardens", Type.OUTDOOR, london);
+
+    public final Venue spinnakerTower = new Venue("Spinnaker Tower", Type.INDOOR, portsmouth);
+    public final Venue maryRoseMuseum = new Venue("Mary Rose Museum", Type.INDOOR, portsmouth);
+    public final Venue portsmouthHistoricDockyard = new Venue("Portsmouth Historic Dockyard", Type.OUTDOOR, portsmouth);
 
     public final Venue palacioReal = new Venue("Palacio Real", Type.INDOOR, madrid);
     public final Venue pradoMuseum = new Venue("Prado Museum", Type.INDOOR, madrid);
@@ -52,6 +57,11 @@ public final class GroupTestData {
         visit(somersetHouse, 4, 6, 2018);
         visit(maritimeMuseum, 4, 6, 2018);
         visit(kewGardens, 6, 6, 2018);
+
+        visit(maryRoseMuseum, 8, 6, 2018);
+        visit(portsmouthHistoricDockyard, 8, 6, 2018);
+
+        visit(spinnakerTower, 9, 6, 2018);
 
         visit(palacioReal, 8, 7, 2018);
         visit(pradoMuseum, 8, 7, 2018);
